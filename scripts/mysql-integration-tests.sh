@@ -17,7 +17,7 @@ sleep 15
 
 docker inspect mysql-test-db
 
-GRAFANA_TEST_DB=mysql go test -v --timeout 10m ./pkg/...
+GRAFANA_TEST_DB=mysql go test ./pkg/...
 _test_result=$?
 
 docker stop mysql-test-db
