@@ -31,6 +31,23 @@ jobs:
         - run:
             name: mysql integration tests
             command: 'GRAFANA_TEST_DB=mysql go test ./pkg/...'
+  postgres-integration-test:
+    docker:
+      - image: circleci/golang:1.10
+      - image: circleci/postgres:9.3-ram
+        environment:
+          POSTGRES_USER: grafanatest
+          POSTGRES_PASSWORD: grafanatest
+    working_directory: /go/src/github.com/grafana/grafana
+    steps:
+        - checkout
+        - run: sudo apt update
+        - run: sudo apt install -y postgresql-client
+        - run: dockerize -wait tcp://127.0.0.1:5432 -timeout 120s
+        - run: cat docker/blocks/postgres_tests/setup.sql | PGPASSWORD=grafanatest psql -U grafanatest -p 5432 -h 127.0.0.1
+        - run:
+            name: postgres integration tests
+            command: 'GRAFANA_TEST_DB=postgres go test ./pkg/...'
 
 
 workflows:
@@ -38,3 +55,4 @@ workflows:
   test:
     jobs:
       - mysql-integration-test
+      - postgres-integration-test
